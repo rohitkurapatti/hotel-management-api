@@ -3,10 +3,13 @@ package com.reservation.hotel.exception;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -185,19 +189,55 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ReservationErrorResponse> handleBadCredentials(
+            BadCredentialsException ex,
+            HttpServletRequest request) {
+        String traceId = MDC.get(TRACE_ID_MDC_KEY);
+        log.error("[TraceId: {}] Bad credentials from IP: {}", traceId, request.getRemoteAddr());
+
+        ReservationErrorResponse response = new ReservationErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Authentication Failed",
+                request.getRequestURI(),
+                traceId,
+                Map.of("error", "Invalid username or password")
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ReservationErrorResponse> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request) {
+        String traceId = MDC.get(TRACE_ID_MDC_KEY);
+        log.error("[TraceId: {}] Authentication error: {} from IP: {}", traceId, ex.getMessage(), request.getRemoteAddr());
+
+        ReservationErrorResponse response = new ReservationErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Authentication Failed",
+                request.getRequestURI(),
+                traceId,
+                Map.of("error", "Authentication failed")
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ReservationErrorResponse> handleOthers(Exception ex, HttpServletRequest request) {
+        String traceId = MDC.get(TRACE_ID_MDC_KEY);
+        log.error("[TraceId: {}] Unexpected error: {}", traceId, ex.getMessage(), ex);
 
         ReservationErrorResponse apiError = new ReservationErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
                 request.getRequestURI(),
-                MDC.get(TRACE_ID_MDC_KEY),
+                traceId,
                 Map.of("error", "Unexpected failure occurred")
         );
 
-        // Log stack trace here
-        ex.printStackTrace();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }

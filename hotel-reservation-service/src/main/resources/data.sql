@@ -6,11 +6,11 @@ INSERT INTO payment_status (payment_reference, status) VALUES ('PN333333', 'PEND
 -- Initial Users (password: "password" for all users, hashed with BCrypt)
 -- Admin user: username=admin, password=admin123
 INSERT INTO users (username, password, email, role, enabled)
-VALUES ('admin', '$2a$10$xQ3.lqGZCYmIJH5RWYzEh.PnMCpvJbU8J6c8ZqLmYFVdxCqYwYP8S', 'admin@hotel.com', 'ADMIN', true);
+VALUES ('admin', '$2a$12$eC5jH6xpEb51WuRRNhHJguZHoVuG/miEoDi8hxEyI2jQfBb23Wbdi', 'admin@hotel.com', 'ADMIN', true);
 
 -- Regular user: username=user, password=password
 INSERT INTO users (username, password, email, role, enabled)
-VALUES ('user', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user@hotel.com', 'USER', true);
+VALUES ('user', '$2a$12$ojQNBWRTn5hn40owDzMxouFRSmZAKcGBPE4K2M.G/2v1.94RDJBV.', 'user@hotel.com', 'USER', true);
 
 -- Sample Reservations to demonstrate scheduler cancellation
 INSERT INTO reservations (customer_name, room_number, start_date, end_date, room_segment, payment_mode, payment_reference, total_amount, reservation_status)
