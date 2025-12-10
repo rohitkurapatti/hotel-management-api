@@ -25,7 +25,8 @@ Two modules :
 ### Prerequisites
 
 - Java 21
-- Maven 3.5.7
+- Spring Boot 3.5.7
+- Maven 3.9.9
 
 The API will be available at `http://localhost:8080`
 
