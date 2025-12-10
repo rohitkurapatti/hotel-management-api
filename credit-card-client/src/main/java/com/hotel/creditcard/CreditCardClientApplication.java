@@ -1,15 +1,14 @@
-package com.reservation.hotel;
+package com.hotel.creditcard;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableFeignClients(basePackages = "com.payment.creditcard.api")
-@EnableScheduling
-public class HotelReservationApplication {
+public class CreditCardClientApplication {
     public static void main(String[] args) {
-        SpringApplication.run(HotelReservationApplication.class, args);
+        SpringApplication.run(CreditCardClientApplication.class, args);
     }
 }

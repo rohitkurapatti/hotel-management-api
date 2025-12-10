@@ -1,14 +1,15 @@
 package com.reservation.hotel.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payment.creditcard.api.PaymentStatusApiClient;
 import com.payment.creditcard.model.PaymentStatusResponse;
 import com.payment.creditcard.model.PaymentStatusRetrievalRequest;
 import com.reservation.hotel.commons.exception.PaymentNotConfirmedException;
 import com.reservation.hotel.commons.exception.PaymentReferenceNotFoundException;
 import com.reservation.hotel.commons.exception.ReservationNotFoundException;
+import com.reservation.hotel.commons.exception.ServiceUnavailableException;
 import com.reservation.hotel.model.ReservationRequest;
 import com.reservation.hotel.model.ReservationResponse;
-import com.reservation.hotel.feign.FeignCreditCardPaymentApiClient;
 import com.reservation.hotel.model.PaymentMode;
 import com.reservation.hotel.model.PaymentVerificationStatus;
 import com.reservation.hotel.entities.Reservation;
@@ -33,7 +34,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    private final FeignCreditCardPaymentApiClient creditCardPaymentClient;
+    private final PaymentStatusApiClient paymentStatusApiClient;
 
     private final ObjectMapper objectMapper;
     @Override
@@ -153,8 +154,8 @@ public class ReservationServiceImpl implements ReservationService {
 
     private PaymentVerificationStatus verifyCreditCardPayment(String ref) {
         try {
-            PaymentStatusResponse response = creditCardPaymentClient.paymentStatusPost(
-                    new PaymentStatusRetrievalRequest(ref));
+            PaymentStatusResponse response = paymentStatusApiClient.paymentStatusPost(
+                    new PaymentStatusRetrievalRequest(ref)).getBody();
 
             if (response == null || response.getStatus() == null) {
                 log.error("Null response or status received from credit card payment service for reference: {}", ref);
@@ -183,12 +184,24 @@ public class ReservationServiceImpl implements ReservationService {
             throw new PaymentReferenceNotFoundException("Invalid payment reference format: " + ref);
 
         } catch (FeignException.InternalServerError ex) {
-            // 500 - Credit card service internal error
+            // 500 - Credit card service internal error - return 503
             log.error("Credit card payment service internal error for reference: {}. Error: {}", ref, ex.getMessage());
-            throw new PaymentNotConfirmedException("Credit card payment service is currently unavailable. Please try again later.");
+            throw new ServiceUnavailableException("Credit card payment service is currently unavailable. Please try again later.");
 
         } catch (FeignException ex) {
-            // Generic Feign exception (any other HTTP status)
+            // Handle connection refused (status -1) and other network errors - return 503
+            if (ex.status() == -1) {
+                log.error("Credit card payment service is down or unreachable for reference: {}. Error: {}", ref, ex.getMessage());
+                throw new ServiceUnavailableException("Credit card payment service is currently unavailable. Please try again later.");
+            }
+
+            // Handle 503 Service Unavailable from the payment service
+            if (ex.status() == 503) {
+                log.error("Credit card payment service unavailable for reference: {}. Error: {}", ref, ex.getMessage());
+                throw new ServiceUnavailableException("Credit card payment service is currently unavailable. Please try again later.");
+            }
+
+            // Generic Feign exception (any other HTTP status) - return 500
             log.error("Unexpected error from credit card payment service for reference: {}. Status: {}, Error: {}",
                      ref, ex.status(), ex.getMessage());
             throw new PaymentNotConfirmedException("Unable to verify payment status. Please contact support.");

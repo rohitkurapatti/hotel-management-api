@@ -1,9 +1,11 @@
-package com.reservation.hotel.mocks;
-
+package com.hotel.creditcard.mocks;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "payment_status")

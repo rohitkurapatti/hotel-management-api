@@ -225,6 +225,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ReservationErrorResponse> handleServiceUnavailable(ServiceUnavailableException ex,
+                                                                             HttpServletRequest request) {
+        String traceId = MDC.get(TRACE_ID_MDC_KEY);
+        log.error("[TraceId: {}] Service unavailable: {}", traceId, ex.getMessage());
+
+        ReservationErrorResponse response = new ReservationErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Unavailable",
+                request.getRequestURI(),
+                traceId,
+                Map.of("error", ex.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ReservationErrorResponse> handleOthers(Exception ex, HttpServletRequest request) {
         String traceId = MDC.get(TRACE_ID_MDC_KEY);

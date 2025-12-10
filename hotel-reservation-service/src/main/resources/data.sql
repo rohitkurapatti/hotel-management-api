@@ -1,7 +1,3 @@
--- Payment status reference data
-INSERT INTO payment_status (payment_reference, status) VALUES ('PP111111', 'CONFIRMED');
-INSERT INTO payment_status (payment_reference, status) VALUES ('PR222222', 'CANCELLED');
-INSERT INTO payment_status (payment_reference, status) VALUES ('PN333333', 'PENDING');
 
 -- Initial Users (password: "password" for all users, hashed with BCrypt)
 -- Admin user: username=admin, password=admin123

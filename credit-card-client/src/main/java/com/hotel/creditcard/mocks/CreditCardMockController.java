@@ -1,28 +1,25 @@
-package com.reservation.hotel.mocks;
+package com.hotel.creditcard.mocks;
 
 import com.payment.creditcard.api.PaymentStatusApi;
 import com.payment.creditcard.model.ErrorResponse;
 import com.payment.creditcard.model.PaymentStatusResponse;
 import com.payment.creditcard.model.PaymentStatusRetrievalRequest;
-import com.reservation.hotel.mocks.repo.PaymentStatusRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
-@RequestMapping("/mock-credit-card")
-public class MockPaymentStatusController implements PaymentStatusApi {
+@RequestMapping("/host/credit-card-payment-api")
+public class CreditCardMockController implements PaymentStatusApi {
 
     private final PaymentStatusRepository paymentStatusRepository;
 
-    public MockPaymentStatusController(PaymentStatusRepository paymentStatusRepository) {
+    public CreditCardMockController(PaymentStatusRepository paymentStatusRepository) {
         this.paymentStatusRepository = paymentStatusRepository;
     }
 
@@ -57,4 +54,5 @@ public class MockPaymentStatusController implements PaymentStatusApi {
     }
 
 }
+
 

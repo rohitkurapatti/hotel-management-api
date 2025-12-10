@@ -1,15 +1,16 @@
 package com.reservation.hotel.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payment.creditcard.api.PaymentStatusApiClient;
 import com.payment.creditcard.model.PaymentStatusResponse;
 import com.payment.creditcard.model.PaymentStatusRetrievalRequest;
+import com.reservation.hotel.commons.exception.ServiceUnavailableException;
 import com.reservation.hotel.model.ReservationRequest;
 import com.reservation.hotel.model.ReservationResponse;
 import com.reservation.hotel.entities.Reservation;
 import com.reservation.hotel.commons.exception.PaymentNotConfirmedException;
 import com.reservation.hotel.commons.exception.PaymentReferenceNotFoundException;
 import com.reservation.hotel.commons.exception.ReservationNotFoundException;
-import com.reservation.hotel.feign.FeignCreditCardPaymentApiClient;
 import com.reservation.hotel.model.*;
 import com.reservation.hotel.repository.ReservationRepository;
 import feign.FeignException;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,7 +40,7 @@ class ReservationServiceImplTest {
     private ReservationRepository reservationRepository;
 
     @Mock
-    private FeignCreditCardPaymentApiClient creditCardPaymentClient;
+    private PaymentStatusApiClient paymentStatusApiClient;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -51,7 +53,7 @@ class ReservationServiceImplTest {
     @BeforeEach
     void setUp() {
         // instantiate the service
-        reservationService = new ReservationServiceImpl(reservationRepository, creditCardPaymentClient, objectMapper);
+        reservationService = new ReservationServiceImpl(reservationRepository, paymentStatusApiClient, objectMapper);
 
         reservationRequest = new ReservationRequest();
         reservationRequest.setCustomerName("John Doe");
@@ -143,20 +145,20 @@ class ReservationServiceImplTest {
     @Test
     void testConfirmReservationWithCreditCardConfirmedShouldReturnConfirmedStatus() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
-                .thenReturn(createPaymentStatusResponse("CONFIRMED"));
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+                .thenReturn(ResponseEntity.ok(createPaymentStatusResponse("CONFIRMED")));
         mockReservationSave();
         ReservationResponse response = reservationService.confirmReservation(reservationRequest);
         assertNotNull(response);
         assertEquals(ReservationStatus.CONFIRMED, response.getReservationStatus());
-        verify(creditCardPaymentClient).paymentStatusPost(any(PaymentStatusRetrievalRequest.class));
+        verify(paymentStatusApiClient).paymentStatusPost(any(PaymentStatusRetrievalRequest.class));
     }
 
     @Test
     void testConfirmReservationWithCreditCardCancelledShouldThrowException() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
-                .thenReturn(createPaymentStatusResponse("CANCELLED"));
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+                .thenReturn(ResponseEntity.ok(createPaymentStatusResponse("CANCELLED")));
 
         assertThrows(PaymentNotConfirmedException.class,
                 () -> reservationService.confirmReservation(reservationRequest));
@@ -165,7 +167,7 @@ class ReservationServiceImplTest {
     @Test
     void testConfirmReservationWithCreditCardNotFoundShouldThrowException() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
                 .thenThrow(createFeignNotFoundException());
         assertThrows(PaymentReferenceNotFoundException.class,
                 () -> reservationService.confirmReservation(reservationRequest));
@@ -174,8 +176,8 @@ class ReservationServiceImplTest {
     @Test
     void testConfirmReservationWithCreditCardPendingStatus() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
-                .thenReturn(createPaymentStatusResponse("PENDING"));
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+                .thenReturn(ResponseEntity.ok(createPaymentStatusResponse("PENDING")));
 
         assertThrows(PaymentNotConfirmedException.class,
                 () -> reservationService.confirmReservation(reservationRequest));
@@ -184,7 +186,7 @@ class ReservationServiceImplTest {
     @Test
     void testConfirmReservationWithCreditCardBadRequest() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
                 .thenThrow(createFeignBadRequestException());
 
         assertThrows(PaymentReferenceNotFoundException.class,
@@ -194,28 +196,28 @@ class ReservationServiceImplTest {
     @Test
     void testConfirmReservationWithCreditCardInternalServerError() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
                 .thenThrow(createFeignInternalServerException());
 
-        assertThrows(PaymentNotConfirmedException.class,
+        assertThrows(ServiceUnavailableException.class,
                 () -> reservationService.confirmReservation(reservationRequest));
     }
 
     @Test
     void testConfirmReservationWithCreditCardGenericFeignException() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
                 .thenThrow(createFeignServiceUnavailableException());
 
-        assertThrows(PaymentNotConfirmedException.class,
+        assertThrows(ServiceUnavailableException.class,
                 () -> reservationService.confirmReservation(reservationRequest));
     }
 
     @Test
     void testConfirmReservationWithCreditCardNullResponse() {
         setupCreditCardTest("CC123456");
-        when(creditCardPaymentClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
-                .thenReturn(null);
+        when(paymentStatusApiClient.paymentStatusPost(any(PaymentStatusRetrievalRequest.class)))
+                .thenReturn(ResponseEntity.ok(null));
 
         assertThrows(PaymentNotConfirmedException.class,
                 () -> reservationService.confirmReservation(reservationRequest));
