@@ -1,6 +1,0 @@
-com\reservation\hotel\services\impl\ReservationServiceImplTest.class
-com\reservation\hotel\controller\ReservationControllerTest.class
-com\reservation\hotel\kafka\BankTransferPaymentUpdateProducerTest.class
-com\reservation\hotel\kafka\BankTransferPaymentListenerTest.class
-com\reservation\hotel\config\FeignTraceIdInterceptorTest.class
-com\reservation\hotel\services\ReservationCancellationSchedulerTest.class
