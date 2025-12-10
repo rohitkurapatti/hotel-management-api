@@ -1,6 +1,6 @@
 # Hotel Management API
 
-A simple hotel reservation system built with Spring Boot. This project handles status of room booking, payments, and user authentication.
+A Hotel Reservation service built with Spring Boot. This project handles room booking via multiple payment modes
 
 ## What's Inside
 
