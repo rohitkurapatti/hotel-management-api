@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hotel-registration-service</a> &gt; <a href="index.source.html" class="el_package">com.reservation.hotel.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.reservation.hotel.exception;
+
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import org.slf4j.MDC;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+<span class="fc" id="L20">public class GlobalExceptionHandler {</span>
+
+    private static final String TRACE_HEADER = &quot;X-Trace-Id&quot;;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; validationHandler(MethodArgumentNotValidException ex,
+                                                                      HttpServletRequest request) {
+<span class="fc" id="L27">        Map&lt;String, String&gt; fieldErrors = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        for (FieldError fe : ex.getBindingResult().getFieldErrors()) {</span>
+<span class="fc" id="L29">            fieldErrors.put(fe.getField(), fe.getDefaultMessage());</span>
+<span class="fc" id="L30">        }</span>
+
+<span class="fc" id="L32">        ReservationErrorResponse apiError = new ReservationErrorResponse(</span>
+<span class="fc" id="L33">                HttpStatus.BAD_REQUEST.value(),</span>
+                &quot;Validation Failed&quot;,
+<span class="fc" id="L35">                request.getRequestURI(),</span>
+<span class="fc" id="L36">                MDC.get(TRACE_HEADER),</span>
+                fieldErrors
+        );
+
+<span class="fc" id="L40">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);</span>
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handleConstraintViolation(
+            ConstraintViolationException ex, HttpServletRequest request) {
+
+<span class="nc" id="L47">        Map&lt;String, String&gt; errors = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L49">        ex.getConstraintViolations().forEach(violation -&gt; {</span>
+<span class="nc" id="L50">            String propertyPath = violation.getPropertyPath().toString();</span>
+            // Extract just the field name (e.g., &quot;getReservation.id&quot; -&gt; &quot;id&quot;)
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            String fieldName = propertyPath.contains(&quot;.&quot;)</span>
+<span class="nc" id="L53">                ? propertyPath.substring(propertyPath.lastIndexOf('.') + 1)</span>
+<span class="nc" id="L54">                : propertyPath;</span>
+<span class="nc" id="L55">            errors.put(fieldName, violation.getMessage());</span>
+<span class="nc" id="L56">        });</span>
+
+<span class="nc" id="L58">        ReservationErrorResponse errorResponse = new ReservationErrorResponse(</span>
+<span class="nc" id="L59">                HttpStatus.BAD_REQUEST.value(),</span>
+                &quot;Validation Failed&quot;,
+<span class="nc" id="L61">                request.getRequestURI(),</span>
+<span class="nc" id="L62">                MDC.get(TRACE_HEADER),</span>
+                errors
+        );
+
+<span class="nc" id="L66">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpServletRequest request) {
+
+<span class="fc" id="L73">        Map&lt;String, String&gt; errorResponse = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L74">        String errorType = &quot;Invalid Request Format&quot;;</span>
+
+        // Try to extract the root cause for detailed error information
+<span class="fc" id="L77">        Throwable cause = ex.getCause();</span>
+
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (cause instanceof InvalidFormatException ife) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            String fieldName = !ife.getPath().isEmpty() ? ife.getPath().get(0).getFieldName() : &quot;unknown&quot;;</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (ife.getTargetType().equals(java.time.LocalDate.class)) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                String providedValue = ife.getValue() != null ? ife.getValue().toString() : &quot;null&quot;;</span>
+<span class="nc" id="L84">                errorResponse.put(fieldName,</span>
+<span class="nc" id="L85">                    String.format(&quot;Invalid date format '%s'. Expected format: yyyy-MM-dd (e.g., 2025-12-31)&quot;, providedValue));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            } else if (ife.getTargetType().isEnum()) {</span>
+<span class="nc" id="L87">                String allowedValues = Arrays.toString(ife.getTargetType().getEnumConstants());</span>
+<span class="nc" id="L88">                errorResponse.put(fieldName, &quot;Invalid value. Allowed values: &quot; + allowedValues);</span>
+<span class="nc" id="L89">            } else {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                String providedValue = ife.getValue() != null ? ife.getValue().toString() : &quot;null&quot;;</span>
+<span class="nc" id="L91">                errorResponse.put(fieldName,</span>
+<span class="nc" id="L92">                    String.format(&quot;Invalid value '%s' for type %s&quot;, providedValue, ife.getTargetType().getSimpleName()));</span>
+            }
+<span class="nc" id="L94">        } else {</span>
+            // For other JSON parsing errors, provide a descriptive message
+<span class="fc" id="L96">            String message = ex.getMostSpecificCause().getMessage();</span>
+<span class="pc bpc" id="L97" title="2 of 4 branches missed.">            if (message != null &amp;&amp; message.length() &gt; 200) {</span>
+<span class="nc" id="L98">                message = message.substring(0, 200) + &quot;...&quot;;</span>
+            }
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">            errorResponse.put(&quot;request&quot;, message != null ? message : &quot;Malformed JSON request&quot;);</span>
+        }
+
+<span class="fc" id="L103">        ReservationErrorResponse apiError = new ReservationErrorResponse(</span>
+<span class="fc" id="L104">                HttpStatus.BAD_REQUEST.value(),</span>
+                errorType,
+<span class="fc" id="L106">                request.getRequestURI(),</span>
+<span class="fc" id="L107">                MDC.get(TRACE_HEADER),</span>
+                errorResponse
+        );
+
+<span class="fc" id="L111">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);</span>
+    }
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handleInvalidFormat(InvalidFormatException ex, HttpServletRequest request) {
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        String fieldName = !ex.getPath().isEmpty() ? ex.getPath().get(0).getFieldName() : &quot;unknown&quot;;</span>
+<span class="nc" id="L118">        Map&lt;String, String&gt; errorResponse = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (ex.getTargetType().isEnum()) {</span>
+<span class="nc" id="L121">            String allowedValues = Arrays.toString(ex.getTargetType().getEnumConstants());</span>
+<span class="nc" id="L122">            errorResponse.put(fieldName, &quot;Invalid value. Allowed values: &quot; + allowedValues);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        } else if (ex.getTargetType().equals(java.time.LocalDate.class)) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            String providedValue = ex.getValue() != null ? ex.getValue().toString() : &quot;null&quot;;</span>
+<span class="nc" id="L125">            errorResponse.put(fieldName,</span>
+<span class="nc" id="L126">                String.format(&quot;Invalid date format '%s'. Expected format: yyyy-MM-dd (e.g., 2025-12-31)&quot;, providedValue));</span>
+<span class="nc" id="L127">        } else {</span>
+<span class="nc" id="L128">            errorResponse.put(fieldName, &quot;Invalid format for field&quot;);</span>
+        }
+
+<span class="nc" id="L131">        ReservationErrorResponse apiError = new ReservationErrorResponse(</span>
+<span class="nc" id="L132">                HttpStatus.BAD_REQUEST.value(),</span>
+                &quot;Invalid Format&quot;,
+<span class="nc" id="L134">                request.getRequestURI(),</span>
+<span class="nc" id="L135">                MDC.get(TRACE_HEADER),</span>
+                errorResponse
+        );
+
+<span class="nc" id="L139">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);</span>
+
+
+    }
+
+    @ExceptionHandler(PaymentNotConfirmedException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handlePaymentFailure(PaymentNotConfirmedException ex, HttpServletRequest request) {
+
+<span class="nc" id="L147">        ReservationErrorResponse apiError = new ReservationErrorResponse(</span>
+<span class="nc" id="L148">                HttpStatus.PAYMENT_REQUIRED.value(),</span>
+                &quot;Payment Not Confirmed&quot;,
+<span class="nc" id="L150">                request.getRequestURI(),</span>
+<span class="nc" id="L151">                MDC.get(&quot;X-Trace-Id&quot;),</span>
+<span class="nc" id="L152">                Map.of(&quot;paymentStatus&quot;, ex.getMessage())</span>
+        );
+
+<span class="nc" id="L155">        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(apiError);</span>
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handleBadRequest(IllegalArgumentException ex, HttpServletRequest request) {
+
+<span class="nc" id="L161">        ReservationErrorResponse apiError = new ReservationErrorResponse(</span>
+<span class="nc" id="L162">                HttpStatus.BAD_REQUEST.value(),</span>
+                &quot;Bad Request&quot;,
+<span class="nc" id="L164">                request.getRequestURI(),</span>
+<span class="nc" id="L165">                MDC.get(&quot;X-Trace-Id&quot;),</span>
+<span class="nc" id="L166">                Map.of(&quot;error&quot;, ex.getMessage())</span>
+        );
+
+<span class="nc" id="L169">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);</span>
+    }
+
+    @ExceptionHandler(PaymentReferenceNotFoundException.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handlePaymentReferenceNotFound(
+            PaymentReferenceNotFoundException ex,
+            HttpServletRequest request) {
+
+<span class="nc" id="L177">        ReservationErrorResponse response = new ReservationErrorResponse(</span>
+<span class="nc" id="L178">                HttpStatus.NOT_FOUND.value(),</span>
+                &quot;Payment Reference Not Found&quot;,
+<span class="nc" id="L180">                request.getRequestURI(),</span>
+<span class="nc" id="L181">                MDC.get(&quot;traceId&quot;),</span>
+<span class="nc" id="L182">                Map.of(&quot;paymentReference&quot;, ex.getMessage())</span>
+        );
+
+<span class="nc" id="L185">        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);</span>
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ReservationErrorResponse&gt; handleOthers(Exception ex, HttpServletRequest request) {
+
+<span class="nc" id="L191">        ReservationErrorResponse apiError = new ReservationErrorResponse(</span>
+<span class="nc" id="L192">                HttpStatus.INTERNAL_SERVER_ERROR.value(),</span>
+                &quot;Internal Server Error&quot;,
+<span class="nc" id="L194">                request.getRequestURI(),</span>
+<span class="nc" id="L195">                MDC.get(&quot;X-Trace-Id&quot;),</span>
+<span class="nc" id="L196">                Map.of(&quot;error&quot;, &quot;Unexpected failure occurred&quot;)</span>
+        );
+
+        // Log stack trace here
+<span class="nc" id="L200">        ex.printStackTrace();</span>
+
+<span class="nc" id="L202">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
