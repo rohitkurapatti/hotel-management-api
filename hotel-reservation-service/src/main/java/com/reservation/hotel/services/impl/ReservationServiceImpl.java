@@ -86,9 +86,9 @@ public class ReservationServiceImpl implements ReservationService {
                         log.debug("Full Payment done and confirmed by credit card");
                         reservation.setReservationStatus(ReservationStatus.CONFIRMED);
                     }
-                    case CANCELLED, PENDING -> {
+                    case CANCELLED, PENDING, REJECTED -> {
                         log.error("Credit Card Payment REJECTED");
-                        throw new PaymentNotConfirmedException("Payment is in pending state or cancelled");
+                        throw new PaymentNotConfirmedException("Payment is in pending state or cancelled or rejected.");
                     }
                     case NOT_FOUND -> {
                         log.error("Credit Card Payment reference not found");

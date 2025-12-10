@@ -22,7 +22,7 @@ public class DataInitializer implements CommandLineRunner {
         if (paymentStatusRepository.count() == 0) {
             // Payment status reference data
             paymentStatusRepository.save(new PaymentStatus("PP111111", "CONFIRMED"));
-            paymentStatusRepository.save(new PaymentStatus("PR222222", "CANCELLED"));
+            paymentStatusRepository.save(new PaymentStatus("PR222222", "REJECTED"));
             paymentStatusRepository.save(new PaymentStatus("PN333333", "PENDING"));
 
             log.info("Successfully initialized {} payment status records", paymentStatusRepository.count());
