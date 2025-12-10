@@ -1,15 +1,10 @@
 
-
 # Server Configuration
 server:
   port: 8080
 
 # Spring Application Configuration
 spring:
-  profiles:
-    active:
-      on-profile: dev
-
   application:
     name: hotel-reservation-service
 
@@ -35,6 +30,13 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+# Jackson JSON Configuration
+  jackson:
+    date-format: yyyy-MM-dd
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
 
 # Kafka Configuration
   kafka:

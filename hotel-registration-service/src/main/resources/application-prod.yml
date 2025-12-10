@@ -1,19 +1,14 @@
 
-
 # Server Configuration
 server:
-  port: 8080
+  port: 9090
 
 # Spring Application Configuration
 spring:
-  profiles:
-    active:
-      on-profile: dev
-
   application:
     name: hotel-reservation-service
 
-# Database Configuration (H2 In-Memory)
+# Database Configuration (H2 In-Memory - based on prod environment)
   datasource:
     url: jdbc:h2:mem:hoteldb
     driver-class-name: org.h2.Driver
@@ -24,11 +19,11 @@ spring:
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-    show-sql: false
+    show-sql: true
 
 # H2 Console Configuration
   h2:
@@ -36,9 +31,16 @@ spring:
       enabled: true
       path: /h2-console
 
+  # Jackson JSON Configuration - use this configuration for date formatting serialization globally for prod
+  # jackson:
+  #   date-format: yyyy-MM-dd
+  #   serialization:
+  #     write-dates-as-timestamps: false
+  #   default-property-inclusion: non_null
+
 # Kafka Configuration
   kafka:
-    enabled: false  # Set to true to enable Kafka (requires Kafka server running)
+    enabled: true  # Set to true to enable Kafka (requires Kafka server running)
     bootstrap-servers: localhost:9092
 
     producer:
@@ -64,13 +66,13 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
     org.springframework.kafka: INFO
-    feign: DEBUG
-    com.reservation.hotel: DEBUG
-    com.reservation.hotel.feign: DEBUG
-    org.springframework.cloud.openfeign: DEBUG
-    org.hibernate.SQL: DEBUG
+    feign: INFO
+    com.reservation.hotel: INFO
+    com.reservation.hotel.feign: INFO
+    org.springframework.cloud.openfeign: INFO
+    org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"
@@ -84,7 +86,7 @@ logging:
 services:
   creditcard:
     name: credit-card-payment-service
-    base-url: http://localhost:8080/mock-credit-card
+    base-url: http://localhost:8080/mock-credit-card # {{Downstream : prod environment URL}}
 
 # Scheduler Configuration
 scheduler:
