@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/mock-credit-card/**").permitAll() // Mock payment service for Feign client
+                        .requestMatchers("/h2-console/**").permitAll() // H2 console for development
 
                         // Reservation endpoints - require authentication
                         .requestMatchers(HttpMethod.POST, "/api/reservations/confirm").hasAnyRole("USER", "ADMIN")

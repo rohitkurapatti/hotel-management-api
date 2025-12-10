@@ -12,10 +12,6 @@ VALUES ('admin', '$2a$10$xQ3.lqGZCYmIJH5RWYzEh.PnMCpvJbU8J6c8ZqLmYFVdxCqYwYP8S',
 INSERT INTO users (username, password, email, role, enabled)
 VALUES ('user', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user@hotel.com', 'USER', true);
 
--- System user for service-to-service calls: username=system, password=system123
-INSERT INTO users (username, password, email, role, enabled)
-VALUES ('system', '$2a$10$5A0VqhqhC3W.67z6e4p4dOMYqLQPUbMxMb4U5cLB0K5rJHH8bDfN2', 'system@hotel.com', 'SYSTEM', true);
-
 -- Sample Reservations to demonstrate scheduler cancellation
 INSERT INTO reservations (customer_name, room_number, start_date, end_date, room_segment, payment_mode, payment_reference, total_amount, reservation_status)
 VALUES ('John Doe', '101', DATEADD('DAY', 1, CURRENT_DATE), DATEADD('DAY', 3, CURRENT_DATE), 'MEDIUM', 'CASH', 'CASH001', 2000.00, 'CONFIRMED');
