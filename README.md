@@ -42,9 +42,30 @@ jwt:
 
 ### Authentication
 - `POST /api/auth/register` - Sign up
+
+Sample Request Body : 
+{
+   "username": "admin",
+   "password": "admin123",
+   "email": "abc@gmail.com"
+}
+
+
 - `POST /api/auth/login` - Login
 
-Pass the Bearer Token for each request in the headers in form of 
+Default users available for login:
+{
+  "username":"admin",
+  "password":"admin123"
+}
+
+and 
+{
+  "username":"user",
+  "password":"password"
+}
+
+Pass the Bearer Token for recieved from the responseeach request in the headers in form of 
 Authorization: Bearer {{YOUR_BEARER_TOKEN}}
 
 ### Reservations
