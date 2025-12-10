@@ -10,10 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -31,6 +34,8 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
+        String traceId = MDC.get("traceId");
+        log.info("[TraceId: {}] Registration request for: {}", traceId, request.getUsername());
         AuthenticationResponse response = authenticationService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -44,6 +49,8 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(
             @Valid @RequestBody AuthenticationRequest request
     ) {
+        String traceId = MDC.get("traceId");
+        log.info("[TraceId: {}] Login request for: {}", traceId, request.getUsername());
         AuthenticationResponse response = authenticationService.authenticate(request);
         return ResponseEntity.ok(response);
     }

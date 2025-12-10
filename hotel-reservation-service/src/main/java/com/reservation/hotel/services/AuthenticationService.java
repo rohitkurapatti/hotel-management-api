@@ -9,6 +9,7 @@ import com.reservation.hotel.repository.UserRepository;
 import com.reservation.hotel.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,13 +26,16 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        log.info("Registering new user: {}", request.getUsername());
+        String traceId = MDC.get("traceId");
+        log.info("[TraceId: {}] Registering new user: {}", traceId, request.getUsername());
 
         if (userRepository.existsByUsername(request.getUsername())) {
+            log.error("[TraceId: {}] Username already exists: {}", traceId, request.getUsername());
             throw new IllegalArgumentException("Username already exists");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.error("[TraceId: {}] Email already exists: {}", traceId, request.getEmail());
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -44,7 +48,7 @@ public class AuthenticationService {
                 .build();
 
         userRepository.save(user);
-        log.info("User registered successfully: {}", user.getUsername());
+        log.info("[TraceId: {}] User registered successfully: {}", traceId, user.getUsername());
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
@@ -56,20 +60,26 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        log.info("Authenticating user: {}", request.getUsername());
+        String traceId = MDC.get("traceId");
+        log.info("[TraceId: {}] Authenticating user: {}", traceId, request.getUsername());
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (Exception e) {
+            log.error("[TraceId: {}] Authentication failed for user: {}", traceId, request.getUsername());
+            throw e;
+        }
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
         var jwtToken = jwtService.generateToken(user);
-        log.info("User authenticated successfully: {}", user.getUsername());
+        log.info("[TraceId: {}] User authenticated successfully: {}", traceId, user.getUsername());
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
