@@ -36,6 +36,11 @@ spring:
       enabled: true
       path: /h2-console
 
+# JWT Security Configuration
+jwt:
+  secret-key: ${JWT_SECRET_KEY:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: 86400000  # 24 hours in milliseconds
+
 # Kafka Configuration
   kafka:
     enabled: false  # Set to true to enable Kafka (requires Kafka server running)
