@@ -19,7 +19,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final String TRACE_HEADER = "X-Trace-Id";
+    private static final String TRACE_ID_MDC_KEY = "traceId";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ReservationErrorResponse> validationHandler(MethodArgumentNotValidException ex,
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation Failed",
                 request.getRequestURI(),
-                MDC.get(TRACE_HEADER),
+                MDC.get(TRACE_ID_MDC_KEY),
                 fieldErrors
         );
 
@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation Failed",
                 request.getRequestURI(),
-                MDC.get(TRACE_HEADER),
+                MDC.get(TRACE_ID_MDC_KEY),
                 errors
         );
 
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 errorType,
                 request.getRequestURI(),
-                MDC.get(TRACE_HEADER),
+                MDC.get(TRACE_ID_MDC_KEY),
                 errorResponse
         );
 
@@ -132,7 +132,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Invalid Format",
                 request.getRequestURI(),
-                MDC.get(TRACE_HEADER),
+                MDC.get(TRACE_ID_MDC_KEY),
                 errorResponse
         );
 
@@ -148,7 +148,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.PAYMENT_REQUIRED.value(),
                 "Payment Not Confirmed",
                 request.getRequestURI(),
-                MDC.get("X-Trace-Id"),
+                MDC.get(TRACE_ID_MDC_KEY),
                 Map.of("paymentStatus", ex.getMessage())
         );
 
@@ -162,7 +162,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 request.getRequestURI(),
-                MDC.get("X-Trace-Id"),
+                MDC.get(TRACE_ID_MDC_KEY),
                 Map.of("error", ex.getMessage())
         );
 
@@ -192,7 +192,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
                 request.getRequestURI(),
-                MDC.get("X-Trace-Id"),
+                MDC.get(TRACE_ID_MDC_KEY),
                 Map.of("error", "Unexpected failure occurred")
         );
 
