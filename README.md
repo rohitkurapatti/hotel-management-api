@@ -5,7 +5,7 @@ A Hotel Reservation service built with Spring Boot. This project handles room bo
 ## What's Inside
 
 - **Reservation Service** - Main service to confirm a room reservation
-- **Credit Card Client** - Handles payment verification for credit card via feign client
+- **Credit Card Client** - Handles payment verification for credit card via feign client generated using open-api-generator
 - User authentication with JWT
 - Kafka integration for bank transfers
 - H2 database for dev/testing
@@ -15,11 +15,16 @@ A Hotel Reservation service built with Spring Boot. This project handles room bo
 Two modules : 
 
   1. credit-card-client : generated using open-api generator with the provided yaml located in resources folder
-    If after running mvn clean install any issues in hotel-reservation-service for finding classes/files: 
+    If issues after running mvn clean install any issues in hotel-reservation-service for finding classes/files: 
       Perform : credit-card-clitn -> target -> generated-sources -> openapi -> src 
       after reaching here right click on src -> select Mark Directory As -> Source Root
 
+  The API currently exposed at with default data values for testing:  `hhttp://localhost:9090/host/credit-card-payment-api`
+  It contains the status of the payment for upstream API's
+
   2. hotel-reservation-service : Contains the business logic, validations, exception handling and authentication
+
+  The API will be available at `http://localhost:8080`
   
 
 ### Prerequisites
