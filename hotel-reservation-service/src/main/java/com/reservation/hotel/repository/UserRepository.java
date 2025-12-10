@@ -1,8 +1,7 @@
 package com.reservation.hotel.repository;
 
-import com.reservation.hotel.model.User;
+import com.reservation.hotel.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 

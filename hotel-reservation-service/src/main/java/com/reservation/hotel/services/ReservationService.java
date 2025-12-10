@@ -1,8 +1,8 @@
 package com.reservation.hotel.services;
 
 
-import com.reservation.hotel.dto.ReservationRequest;
-import com.reservation.hotel.dto.ReservationResponse;
+import com.reservation.hotel.model.ReservationRequest;
+import com.reservation.hotel.model.ReservationResponse;
 
 import java.math.BigDecimal;
 

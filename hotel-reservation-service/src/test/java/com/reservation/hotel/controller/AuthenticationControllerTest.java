@@ -1,10 +1,10 @@
 package com.reservation.hotel.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reservation.hotel.dto.AuthenticationRequest;
-import com.reservation.hotel.dto.AuthenticationResponse;
-import com.reservation.hotel.dto.RegisterRequest;
-import com.reservation.hotel.exception.GlobalExceptionHandler;
+import com.reservation.hotel.model.AuthenticationRequest;
+import com.reservation.hotel.model.AuthenticationResponse;
+import com.reservation.hotel.commons.exception.GlobalExceptionHandler;
+import com.reservation.hotel.model.RegisterRequest;
 import com.reservation.hotel.services.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

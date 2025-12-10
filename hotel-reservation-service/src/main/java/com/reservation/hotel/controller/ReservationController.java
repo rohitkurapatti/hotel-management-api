@@ -1,7 +1,7 @@
 package com.reservation.hotel.controller;
 
-import com.reservation.hotel.dto.ReservationRequest;
-import com.reservation.hotel.dto.ReservationResponse;
+import com.reservation.hotel.model.ReservationRequest;
+import com.reservation.hotel.model.ReservationResponse;
 import com.reservation.hotel.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,8 +1,8 @@
 package com.reservation.hotel.controller;
 
-import com.reservation.hotel.dto.AuthenticationRequest;
-import com.reservation.hotel.dto.AuthenticationResponse;
-import com.reservation.hotel.dto.RegisterRequest;
+import com.reservation.hotel.model.AuthenticationRequest;
+import com.reservation.hotel.model.AuthenticationResponse;
+import com.reservation.hotel.model.RegisterRequest;
 import com.reservation.hotel.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

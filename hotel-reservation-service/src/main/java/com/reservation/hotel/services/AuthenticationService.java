@@ -1,10 +1,10 @@
 package com.reservation.hotel.services;
 
-import com.reservation.hotel.dto.AuthenticationRequest;
-import com.reservation.hotel.dto.AuthenticationResponse;
-import com.reservation.hotel.dto.RegisterRequest;
+import com.reservation.hotel.model.AuthenticationRequest;
+import com.reservation.hotel.model.AuthenticationResponse;
+import com.reservation.hotel.model.RegisterRequest;
 import com.reservation.hotel.model.Role;
-import com.reservation.hotel.model.User;
+import com.reservation.hotel.entities.User;
 import com.reservation.hotel.repository.UserRepository;
 import com.reservation.hotel.security.JwtService;
 import lombok.RequiredArgsConstructor;

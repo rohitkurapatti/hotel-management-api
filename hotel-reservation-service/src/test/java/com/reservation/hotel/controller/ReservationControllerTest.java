@@ -1,9 +1,9 @@
 package com.reservation.hotel.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reservation.hotel.dto.ReservationRequest;
-import com.reservation.hotel.dto.ReservationResponse;
-import com.reservation.hotel.exception.GlobalExceptionHandler;
+import com.reservation.hotel.model.ReservationRequest;
+import com.reservation.hotel.model.ReservationResponse;
+import com.reservation.hotel.commons.exception.GlobalExceptionHandler;
 import com.reservation.hotel.model.PaymentMode;
 import com.reservation.hotel.model.ReservationStatus;
 import com.reservation.hotel.model.RoomSegment;

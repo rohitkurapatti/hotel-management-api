@@ -1,8 +1,7 @@
 package com.reservation.hotel.repository;
 
 import com.reservation.hotel.model.PaymentMode;
-import com.reservation.hotel.model.Reservation;
-import com.reservation.hotel.model.ReservationStatus;
+import com.reservation.hotel.entities.Reservation;
 import com.reservation.hotel.model.RoomSegment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

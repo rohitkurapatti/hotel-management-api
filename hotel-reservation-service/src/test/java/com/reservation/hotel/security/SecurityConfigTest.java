@@ -1,6 +1,6 @@
 package com.reservation.hotel.security;
 
-import com.reservation.hotel.filter.JwtAuthenticationFilter;
+import com.reservation.hotel.security.filter.JwtAuthenticationFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package com.reservation.hotel.config;
 
-import com.reservation.hotel.constants.AppConstants;
+import com.reservation.hotel.commons.constants.AppConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
