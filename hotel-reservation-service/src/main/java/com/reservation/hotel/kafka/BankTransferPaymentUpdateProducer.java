@@ -9,6 +9,11 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+
+/*
+* This class is created just for publishing the messages onto kafka
+* It is not a part of the assignment
+* */
 @Slf4j
 @Service
 @RequiredArgsConstructor
