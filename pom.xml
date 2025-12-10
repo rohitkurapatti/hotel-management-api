@@ -11,7 +11,7 @@
 
     <modules>
 
-        <module>hotel-registration-service</module>
+        <module>hotel-reservaton-service</module>
         <module>credit-card-client</module>
     </modules>
 
