@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,21 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret-key:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
+    @Value("${jwt.secret-key}")
     private String secretKey;
 
     @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
     private long jwtExpiration;
+
+    @PostConstruct
+    public void validateConfiguration() {
+        if (secretKey == null || secretKey.trim().isEmpty()) {
+            throw new IllegalStateException("JWT secret key must be configured in application properties");
+        }
+        if (secretKey.length() < 32) {
+            throw new IllegalStateException("JWT secret key must be at least 32 characters long");
+        }
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

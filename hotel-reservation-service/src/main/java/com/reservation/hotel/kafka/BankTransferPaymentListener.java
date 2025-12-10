@@ -1,5 +1,6 @@
 package com.reservation.hotel.kafka;
 
+import com.reservation.hotel.constants.AppConstants;
 import com.reservation.hotel.dto.BankTransferPaymentEvent;
 import com.reservation.hotel.services.ReservationService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,6 @@ import java.util.UUID;
 )
 public class BankTransferPaymentListener {
 
-    private static final String TRACE_ID_HEADER = "X-Trace-Id";
-
     private final ReservationService reservationService;
 
     public BankTransferPaymentListener(ReservationService reservationService) {
@@ -31,7 +30,8 @@ public class BankTransferPaymentListener {
     @KafkaListener(
             topics = "bank-transfer-payment-update",
             groupId = "hotel-reservation-consumer")
-    public void onBankTransferPayment(BankTransferPaymentEvent paymentEvent, @Header(value = TRACE_ID_HEADER, required = false) String traceId) {
+    public void onBankTransferPayment(BankTransferPaymentEvent paymentEvent,
+                                      @Header(value = AppConstants.TRACE_ID_HEADER, required = false) String traceId) {
 
         // Set trace-id in MDC (generate if not present)
         if (traceId == null || traceId.trim().isEmpty()) {
@@ -39,13 +39,15 @@ public class BankTransferPaymentListener {
             log.debug("Generated new trace-id for Kafka message: {}", traceId);
         }
         try {
-            MDC.put("traceId", traceId);
+            MDC.put(AppConstants.TRACE_ID_MDC_KEY, traceId);
             log.info("Received bank transfer payment event: {}", paymentEvent);
             String txDesc = paymentEvent.getTransactionDescription();
 
             // Format: <10-char E2E id> <8-char reservationId> e.g. "1401541457 P4145478"
             String[] parts = txDesc.trim().split("\\s+");
-            if (parts.length != 2 || parts[0].length() != 10 || parts[1].length() != 8) {
+            if (parts.length != AppConstants.EXPECTED_TRANSACTION_PARTS
+                    || parts[0].length() != AppConstants.E2E_ID_LENGTH
+                    || parts[1].length() != AppConstants.RESERVATION_ID_LENGTH) {
                 log.warn("Invalid transactionDescription format: {}", txDesc);
                 return;
             }

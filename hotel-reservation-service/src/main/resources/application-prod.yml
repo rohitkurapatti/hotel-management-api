@@ -1,125 +1,73 @@
-
-# Server Configuration
+#Production environment configuration for Hotel Reservation Service
 server:
   port: 9090
 
-# Spring Application Configuration
 spring:
-  application:
-    name: hotel-reservation-service
-
-# Database Configuration (H2 In-Memory - based on prod environment)
-  datasource:
-    url: jdbc:h2:mem:hoteldb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: sa
-
-# JPA/Hibernate Configuration
+  # Database - update schema, don't recreate
   jpa:
-    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-    show-sql: true
+    show-sql: false
 
-# H2 Console Configuration
+  # H2 Console should be disabled in production (use real DB instead)
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: false  # SECURITY: Disable in real production
 
-  # Jackson JSON Configuration - use this configuration for date formatting serialization globally for prod
-  # jackson:
-  #   date-format: yyyy-MM-dd
-  #   serialization:
-  #     write-dates-as-timestamps: false
-  #   default-property-inclusion: non_null
+  # JSON formatting
+  jackson:
+    date-format: yyyy-MM-dd
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
 
-# Kafka Configuration
+  # Kafka enabled in production
   kafka:
-    enabled: true  # Set to true to enable Kafka (requires Kafka server running)
-    bootstrap-servers: localhost:9092
+    enabled: true
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      acks: all
-      retries: 3
-
-    consumer:
-      group-id: hotel-reservation-consumer
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-        spring.json.value.default.type: com.reservation.hotel.dto.BankTransferPaymentEvent
-      enable-auto-commit: false
-
-    listener:
-      ack-mode: record
-
-# Logging Configuration
+# Production logging - less verbose, optimized for performance
 logging:
   level:
-    root: INFO
+    root: WARN
     org.springframework.web: INFO
     org.springframework.kafka: INFO
     feign: INFO
     com.reservation.hotel: INFO
-    com.reservation.hotel.feign: INFO
-    org.springframework.cloud.openfeign: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"
-  # Uncomment below for file logging
-  # file:
-  #   name: logs/hotel-reservation.log
-  #   max-size: 10MB
-  #   max-history: 30
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+  file:
+    name: logs/hotel-reservation.log
+    max-size: 50MB
+    max-history: 30
+    total-size-cap: 1GB
 
-# External Service Configuration
+# External services - use production URLs
 services:
   creditcard:
     name: credit-card-payment-service
-    base-url: http://localhost:8080/mock-credit-card # {{Downstream : prod environment URL}}
+    base-url: ${CREDIT_CARD_SERVICE_URL:http://localhost:8080/mock-credit-card}
 
-# Scheduler Configuration
+# Production scheduler
 scheduler:
   reservation-cancellation:
     enabled: true
-    cron: "0 0 0 * * ?"  # Daily at midnight (HH:MM:SS Day Month DayOfWeek)
+    cron: "0 0 1 * * *"  # Daily at midnight
 
-# SpringDoc OpenAPI/Swagger Configuration
-
+# Swagger disabled in production for security
 springdoc:
   api-docs:
-    path: /api-docs
-    enabled: true
+    enabled: false
   swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    operations-sorter: method
-    tags-sorter: alpha
-    display-request-duration: true
-    doc-expansion: none
-  show-actuator: false
+    enabled: false
 
-# Actuator Configuration
-
+# Actuator - restricted endpoints in production
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
-      base-path: /actuator
+        include: health,info  # Only essential endpoints
   endpoint:
     health:
-      show-details: always
-  health:
-    defaults:
-      enabled: true
+      show-details: when-authorized  # Hide details from public
+

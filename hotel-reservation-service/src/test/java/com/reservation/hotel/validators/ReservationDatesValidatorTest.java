@@ -28,7 +28,6 @@ class ReservationDatesValidatorTest {
     }
 
     @Test
-    @DisplayName("Should pass validation with valid reservation dates")
     void testValidReservationDates() {
         ReservationRequest request = createValidReservationRequest();
         request.setStartDate(LocalDate.now().plusDays(1));
@@ -40,7 +39,6 @@ class ReservationDatesValidatorTest {
     }
 
     @Test
-    @DisplayName("Should fail validation when end date is before start date")
     void testEndDateBeforeStartDate() {
 
         ReservationRequest request = createValidReservationRequest();
@@ -55,7 +53,6 @@ class ReservationDatesValidatorTest {
     }
 
     @Test
-    @DisplayName("Should fail validation when reservation exceeds 30 days")
     void testReservationExceeds30Days() {
         ReservationRequest request = createValidReservationRequest();
         request.setStartDate(LocalDate.now().plusDays(1));

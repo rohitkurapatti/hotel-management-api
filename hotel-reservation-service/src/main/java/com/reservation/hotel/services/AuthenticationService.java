@@ -63,17 +63,12 @@ public class AuthenticationService {
         String traceId = MDC.get("traceId");
         log.info("[TraceId: {}] Authenticating user: {}", traceId, request.getUsername());
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-        } catch (Exception e) {
-            log.error("[TraceId: {}] Authentication failed for user: {}", traceId, request.getUsername());
-            throw e;
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));

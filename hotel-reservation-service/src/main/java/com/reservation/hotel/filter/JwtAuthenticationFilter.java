@@ -1,6 +1,9 @@
 package com.reservation.hotel.filter;
 
 import com.reservation.hotel.security.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,8 +65,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     log.debug("User '{}' authenticated successfully", username);
                 }
             }
-        } catch (Exception e) {
-            log.error("JWT authentication failed: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT token has expired: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            log.error("Invalid JWT token format: {}", e.getMessage());
+        } catch (SignatureException e) {
+            log.error("JWT signature validation failed: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("JWT token is invalid: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);

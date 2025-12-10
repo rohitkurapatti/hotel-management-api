@@ -1,5 +1,6 @@
 package com.reservation.hotel.config;
 
+import com.reservation.hotel.constants.AppConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,9 +17,6 @@ import java.util.UUID;
 @Order(1)
 public class TraceIdFilter implements Filter {
 
-    public static final String TRACE_ID_HEADER = "X-Trace-Id";
-    public static final String TRACE_ID_MDC_KEY = "traceId";
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -28,7 +26,7 @@ public class TraceIdFilter implements Filter {
 
         try {
 
-            String traceId = httpRequest.getHeader(TRACE_ID_HEADER);
+            String traceId = httpRequest.getHeader(AppConstants.TRACE_ID_HEADER);
             if (traceId == null || traceId.trim().isEmpty()) {
                 traceId = UUID.randomUUID().toString();
                 log.debug("Generated new trace-id: {}", traceId);
@@ -37,10 +35,10 @@ public class TraceIdFilter implements Filter {
             }
 
             // Put trace-id in MDC for logging
-            MDC.put(TRACE_ID_MDC_KEY, traceId);
+            MDC.put(AppConstants.TRACE_ID_MDC_KEY, traceId);
 
             // Add trace-id to response header
-            httpResponse.setHeader(TRACE_ID_HEADER, traceId);
+            httpResponse.setHeader(AppConstants.TRACE_ID_HEADER, traceId);
 
             chain.doFilter(request, response);
         } finally {

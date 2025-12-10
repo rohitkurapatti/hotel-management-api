@@ -20,7 +20,7 @@ public class ReservationCancellationScheduler {
 
     private final ReservationService reservationService;
 
-    @Scheduled(cron = "${scheduler.reservation-cancellation.cron:0 0 0 * * ?}")
+    @Scheduled(cron = "${scheduler.reservation-cancellation.cron}")
     public void autoCancelPendingReservations() {
         // Generate trace-id for scheduler execution
         String traceId = UUID.randomUUID().toString();

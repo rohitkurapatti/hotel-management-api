@@ -1,104 +1,78 @@
 
-
-# Server Configuration
 server:
   port: 8080
 
-# Spring Application Configuration
 spring:
   profiles:
-    active:
-      on-profile: dev
+    active: dev
 
   application:
     name: hotel-reservation-service
 
-# Database Configuration (H2 In-Memory)
+  # Database Configuration
   datasource:
     url: jdbc:h2:mem:hoteldb
     driver-class-name: org.h2.Driver
     username: sa
     password: sa
 
-# JPA/Hibernate Configuration
   jpa:
     defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
-    show-sql: false
 
-# H2 Console Configuration
   h2:
     console:
       enabled: true
       path: /h2-console
 
-# JWT Security Configuration
+  # Security Configuration
 jwt:
-  secret-key: ${JWT_SECRET_KEY:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  expiration: 86400000  # 24 hours in milliseconds
+  secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 900000  # 15 mins in milliseconds
 
-# Kafka Configuration
+  # Kafka Configuration
   kafka:
-    enabled: false  # Set to true to enable Kafka (requires Kafka server running)
-    bootstrap-servers: localhost:9092
-
+    enabled: false  # Set to true when Kafka server is available
+    bootstrap-servers: localhost:9092 #Provide your Kafka server address here
+    topic:
+      bank-transfer-payments: bank-transfer-payments-topic
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 3
-
     consumer:
       group-id: hotel-reservation-consumer
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      enable-auto-commit: false
       properties:
         spring.json.trusted.packages: "*"
         spring.json.value.default.type: com.reservation.hotel.dto.BankTransferPaymentEvent
-      enable-auto-commit: false
-
     listener:
       ack-mode: record
 
-# Logging Configuration
-logging:
-  level:
-    root: INFO
-    org.springframework.web: DEBUG
-    org.springframework.kafka: INFO
-    feign: DEBUG
-    com.reservation.hotel: DEBUG
-    com.reservation.hotel.feign: DEBUG
-    org.springframework.cloud.openfeign: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"
-  # Uncomment below for file logging
-  # file:
-  #   name: logs/hotel-reservation.log
-  #   max-size: 10MB
-  #   max-history: 30
 
-# External Service Configuration
+# External Services
 services:
   creditcard:
     name: credit-card-payment-service
     base-url: http://localhost:8080/mock-credit-card
 
+
 # Scheduler Configuration
 scheduler:
   reservation-cancellation:
     enabled: true
-    cron: "0 0 0 * * ?"  # Daily at midnight (HH:MM:SS Day Month DayOfWeek)
+    cron: "0 0 0 * * *"  # Daily at midnight
 
-# SpringDoc OpenAPI/Swagger Configuration
-
+# API Documentation
 springdoc:
   api-docs:
     path: /api-docs
@@ -112,8 +86,7 @@ springdoc:
     doc-expansion: none
   show-actuator: false
 
-# Actuator Configuration
-
+# Actuator / Monitoring
 management:
   endpoints:
     web:
@@ -123,6 +96,17 @@ management:
   endpoint:
     health:
       show-details: always
-  health:
-    defaults:
-      enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.kafka: INFO
+    feign: DEBUG
+    com.reservation.hotel: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"
+

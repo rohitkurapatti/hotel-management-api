@@ -45,8 +45,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ReservationErrorResponse> handleConstraintViolation(
-            ConstraintViolationException ex, HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
+                                                                              HttpServletRequest request) {
 
         Map<String, String> errors = new HashMap<>();
 
@@ -71,8 +71,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ReservationErrorResponse> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException ex, HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+                                                                                 HttpServletRequest request) {
 
         Map<String, String> errorResponse = new HashMap<>();
         String errorType = "Invalid Request Format";
@@ -116,7 +116,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity<ReservationErrorResponse> handleInvalidFormat(InvalidFormatException ex, HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handleInvalidFormat(InvalidFormatException ex,
+                                                                        HttpServletRequest request) {
 
         String fieldName = !ex.getPath().isEmpty() ? ex.getPath().get(0).getFieldName() : "unknown";
         Map<String, String> errorResponse = new HashMap<>();
@@ -146,7 +147,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PaymentNotConfirmedException.class)
-    public ResponseEntity<ReservationErrorResponse> handlePaymentFailure(PaymentNotConfirmedException ex, HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handlePaymentFailure(PaymentNotConfirmedException ex,
+                                                                         HttpServletRequest request) {
 
         ReservationErrorResponse apiError = new ReservationErrorResponse(
                 HttpStatus.PAYMENT_REQUIRED.value(),
@@ -160,7 +162,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ReservationErrorResponse> handleBadRequest(IllegalArgumentException ex, HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handleBadRequest(IllegalArgumentException ex,
+                                                                     HttpServletRequest request) {
 
         ReservationErrorResponse apiError = new ReservationErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
@@ -174,9 +177,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PaymentReferenceNotFoundException.class)
-    public ResponseEntity<ReservationErrorResponse> handlePaymentReferenceNotFound(
-            PaymentReferenceNotFoundException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handlePaymentReferenceNotFound(PaymentReferenceNotFoundException ex,
+                                                                                   HttpServletRequest request) {
 
         ReservationErrorResponse response = new ReservationErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -190,9 +192,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ReservationErrorResponse> handleBadCredentials(
-            BadCredentialsException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handleBadCredentials(BadCredentialsException ex,
+                                                                         HttpServletRequest request) {
         String traceId = MDC.get(TRACE_ID_MDC_KEY);
         log.error("[TraceId: {}] Bad credentials from IP: {}", traceId, request.getRemoteAddr());
 
@@ -208,9 +209,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ReservationErrorResponse> handleAuthenticationException(
-            AuthenticationException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ReservationErrorResponse> handleAuthenticationException(AuthenticationException ex,
+                                                                                  HttpServletRequest request) {
         String traceId = MDC.get(TRACE_ID_MDC_KEY);
         log.error("[TraceId: {}] Authentication error: {} from IP: {}", traceId, ex.getMessage(), request.getRemoteAddr());
 
