@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.reservation.hotel</groupId>
+        <artifactId>hotel-microservices</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>credit-card-client</artifactId>
+    <description>This is a model project as per open api specs</description>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- Validation annotations for generated models -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Jackson nullable support for OpenAPI generated models -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator.version}</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <generateSupportingFiles>false</generateSupportingFiles>
+                    <generatorName>spring</generatorName>
+                    <library>spring-cloud</library>
+                    <configOptions>
+                        <useSpringBoot3>true</useSpringBoot3>
+                        <immutableModels>true</immutableModels>
+                        <interfaceOnly>true</interfaceOnly>
+                        <skipDefaultInterface>true</skipDefaultInterface>
+                        <validateSpec>false</validateSpec>
+                        <sourceFolder>src/main/java</sourceFolder>
+                    </configOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-credit-card-payment-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/credit-card-payment-service.yml</inputSpec>
+                            <apiPackage>com.payment.creditcard.api</apiPackage>
+                            <modelPackage>com.payment.creditcard.model</modelPackage>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <additionalProperties>
+                                <modelOnly>true</modelOnly>
+                                <useJakartaEe>true</useJakartaEe>
+                                <dateLibrary>java8</dateLibrary>
+                                <openApiNullable>false</openApiNullable>
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-plugin-versions</id>
+                        <goals>
+                            <goal>
+                                enforce
+                            </goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
