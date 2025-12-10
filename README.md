@@ -12,10 +12,20 @@ A Hotel Reservation service built with Spring Boot. This project handles room bo
 
 ## Getting Started
 
+Two modules : 
+
+  1. credit-card-client : generated using open-api generator with the provided yaml located in resources folder
+    If after running mvn clean install any issues in hotel-reservation-service for finding classes/files: 
+      Perform : credit-card-clitn -> target -> generated-sources -> openapi -> src 
+      after reaching here right click on src -> select Mark Directory As -> Source Root
+
+  2. hotel-reservation-service : Contains the business logic, validations, exception handling and authentication
+  
+
 ### Prerequisites
 
 - Java 21
-- Maven 3.x
+- Maven 3.5.7
 
 The API will be available at `http://localhost:8080`
 
@@ -32,9 +42,30 @@ jwt:
 
 ### Authentication
 - `POST /api/auth/register` - Sign up
+
+Sample Request Body : 
+{
+   "username": "admin",
+   "password": "admin123",
+   "email": "abc@gmail.com"
+}
+
+
 - `POST /api/auth/login` - Login
 
-Pass the Bearer Token for each request in the headers in form of 
+Default users available for login:
+{
+  "username":"admin",
+  "password":"admin123"
+}
+
+and 
+{
+  "username":"user",
+  "password":"password"
+}
+
+Pass the Bearer Token for recieved from the responseeach request in the headers in form of 
 Authorization: Bearer {{YOUR_BEARER_TOKEN}}
 
 ### Reservations
