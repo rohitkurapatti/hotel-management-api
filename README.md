@@ -20,6 +20,11 @@ Two modules :
       after reaching here right click on src -> select Mark Directory As -> Source Root
 
   The API currently exposed at with default data values for testing:  `hhttp://localhost:9090/host/credit-card-payment-api`
+  To enable mocks data to initialize enable property in yml file set this property to true "
+  mock:
+    credit-card-service:
+      enabled: true
+      
   It contains the status of the payment for upstream API's
 
   2. hotel-reservation-service : Contains the business logic, validations, exception handling and authentication
@@ -45,6 +50,10 @@ jwt:
 ```
 
 ## API Endpoints
+
+Run both the classes :
+
+CreditCardClientApplication and HotelReservationApplication
 
 ### Authentication
 - `POST /api/auth/register` - Sign up
@@ -84,7 +93,7 @@ Open `http://localhost:8080/swagger-ui.html` to see all endpoints
 
 The system supports three payment methods:
 1. **Cash** - Instant confirmation
-2. **Credit Card** - Verified via external API. Provided a mock implementation for the external API under mocks folder, it runs at `http://localhost:8080/mock-credit-card`
+2. **Credit Card** - Verified via external API. Provided default values during startup using CommandLineRunner
 3. **Bank Transfer** - Confirmed via Kafka events
 
 ## Testing
