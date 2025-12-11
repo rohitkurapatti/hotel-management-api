@@ -5,11 +5,13 @@ import com.hotel.creditcard.mocks.PaymentStatusRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "mock.credit-card-service.enabled", havingValue = "true")
 public class DataInitializer implements CommandLineRunner {
 
     private final PaymentStatusRepository paymentStatusRepository;

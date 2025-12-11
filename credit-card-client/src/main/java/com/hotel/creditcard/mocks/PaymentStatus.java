@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Entity
 @Table(name = "payment_status")
@@ -13,6 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@ConditionalOnProperty(name = "mock.credit-card-service.enabled", havingValue = "true")
 public class PaymentStatus {
 
     @Id

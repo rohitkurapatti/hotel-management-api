@@ -167,6 +167,7 @@ public class ReservationServiceImpl implements ReservationService {
                 case "CONFIRMED" -> PaymentVerificationStatus.CONFIRMED;
                 case "CANCELLED" -> PaymentVerificationStatus.CANCELLED;
                 case "PENDING" -> PaymentVerificationStatus.PENDING;
+                case "REJECTED" -> PaymentVerificationStatus.REJECTED;
                 default -> {
                     log.warn("Unknown payment status '{}' received for reference: {}", status, ref);
                     yield PaymentVerificationStatus.PENDING;

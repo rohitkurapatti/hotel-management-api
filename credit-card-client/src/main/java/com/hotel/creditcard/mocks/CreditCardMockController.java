@@ -5,6 +5,7 @@ import com.payment.creditcard.model.ErrorResponse;
 import com.payment.creditcard.model.PaymentStatusResponse;
 import com.payment.creditcard.model.PaymentStatusRetrievalRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequestMapping("/host/credit-card-payment-api")
+@ConditionalOnProperty(name = "mock.credit-card-service.enabled", havingValue = "true")
 public class CreditCardMockController implements PaymentStatusApi {
 
     private final PaymentStatusRepository paymentStatusRepository;
