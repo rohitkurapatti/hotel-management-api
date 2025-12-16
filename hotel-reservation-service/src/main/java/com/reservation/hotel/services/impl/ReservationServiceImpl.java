@@ -80,21 +80,7 @@ public class ReservationServiceImpl implements ReservationService {
             case CREDIT_CARD -> {
                 PaymentVerificationStatus status =
                         verifyCreditCardPayment(reservationRequest.getPaymentReference());
-
-                switch (status) {
-                    case CONFIRMED -> {
-                        log.debug("Full Payment done and confirmed by credit card");
-                        reservation.setReservationStatus(ReservationStatus.CONFIRMED);
-                    }
-                    case CANCELLED, PENDING, REJECTED -> {
-                        log.error("Credit Card Payment REJECTED");
-                        throw new PaymentNotConfirmedException("Payment is in pending state or cancelled or rejected.");
-                    }
-                    case NOT_FOUND -> {
-                        log.error("Credit Card Payment reference not found");
-                        throw new PaymentReferenceNotFoundException("Payment reference not found");
-                    }
-                }
+                processCreditCardPaymentStatus(status, reservation);
             }
 
             case BANK_TRANSFER -> {
@@ -150,6 +136,23 @@ public class ReservationServiceImpl implements ReservationService {
         reservationEvent.setReservationStatus(ReservationStatus.CONFIRMED);
         reservationRepository.save(reservationEvent);
         log.info("Successfully confirmed reservation {} via bank transfer payment", reservationId);
+    }
+
+    private void processCreditCardPaymentStatus(PaymentVerificationStatus status, Reservation reservation) {
+        switch (status) {
+            case CONFIRMED -> {
+                log.debug("Full Payment done and confirmed by credit card");
+                reservation.setReservationStatus(ReservationStatus.CONFIRMED);
+            }
+            case CANCELLED, PENDING, REJECTED -> {
+                log.error("Credit Card Payment REJECTED");
+                throw new PaymentNotConfirmedException("Payment is in pending state or cancelled or rejected.");
+            }
+            case NOT_FOUND -> {
+                log.error("Credit Card Payment reference not found");
+                throw new PaymentReferenceNotFoundException("Payment reference not found");
+            }
+        }
     }
 
     private PaymentVerificationStatus verifyCreditCardPayment(String ref) {
