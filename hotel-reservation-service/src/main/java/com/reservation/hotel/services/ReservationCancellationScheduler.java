@@ -30,8 +30,6 @@ public class ReservationCancellationScheduler {
             log.info("Running auto-cancellation scheduler with trace-id: {}", traceId);
 
             int cancelled = reservationService.cancelPendingBankTransferReservations();
-
-            log.info("Auto-cancelled {} reservation(s)", cancelled);
         } finally {
             // Clean up MDC to prevent memory leaks
             MDC.clear();
