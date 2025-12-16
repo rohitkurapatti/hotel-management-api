@@ -29,7 +29,7 @@ public class ReservationCancellationScheduler {
             MDC.put(TRACE_ID_MDC_KEY, traceId);
             log.info("Running auto-cancellation scheduler with trace-id: {}", traceId);
 
-            int cancelled = reservationService.cancelPendingBankTransferReservations();
+            reservationService.cancelPendingBankTransferReservations();
         } finally {
             // Clean up MDC to prevent memory leaks
             MDC.clear();
