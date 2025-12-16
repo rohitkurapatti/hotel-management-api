@@ -51,7 +51,7 @@ class ReservationServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Initialize ObjectMapper as real instance
+
         objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules(); // for LocalDate support
 
