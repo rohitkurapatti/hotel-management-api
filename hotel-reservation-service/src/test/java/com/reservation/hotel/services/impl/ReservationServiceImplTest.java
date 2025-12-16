@@ -42,7 +42,6 @@ class ReservationServiceImplTest {
     @Mock
     private PaymentStatusApiClient paymentStatusApiClient;
 
-    @Mock
     private ObjectMapper objectMapper;
 
     private ReservationServiceImpl reservationService;
@@ -52,6 +51,10 @@ class ReservationServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        // Initialize ObjectMapper as real instance
+        objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules(); // for LocalDate support
+
         // instantiate the service
         reservationService = new ReservationServiceImpl(reservationRepository, paymentStatusApiClient, objectMapper);
 
@@ -83,10 +86,6 @@ class ReservationServiceImplTest {
                 .thenReturn(Optional.empty());
     }
 
-    private void mockObjectMapperConversion() {
-        when(objectMapper.convertValue(any(ReservationRequest.class), eq(Reservation.class)))
-                .thenReturn(reservation);
-    }
 
     private void mockReservationSave() {
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
@@ -97,7 +96,6 @@ class ReservationServiceImplTest {
         reservationRequest.setPaymentReference(paymentReference);
         reservation.setPaymentMode(PaymentMode.CREDIT_CARD);
         mockNoExistingReservation();
-        mockObjectMapperConversion();
     }
 
     private PaymentStatusResponse createPaymentStatusResponse(String status) {
@@ -118,7 +116,6 @@ class ReservationServiceImplTest {
     void testConfirmReservationWithCashPaymentShouldReturnConfirmedStatus() {
         reservationRequest.setPaymentMode(PaymentMode.CASH);
         mockNoExistingReservation();
-        mockObjectMapperConversion();
         mockReservationSave();
 
         ReservationResponse response = reservationService.confirmReservation(reservationRequest);
@@ -229,7 +226,6 @@ class ReservationServiceImplTest {
         reservation.setPaymentMode(PaymentMode.BANK_TRANSFER);
         reservation.setReservationStatus(ReservationStatus.PENDING_PAYMENT);
         mockNoExistingReservation();
-        mockObjectMapperConversion();
         mockReservationSave();
         ReservationResponse response = reservationService.confirmReservation(reservationRequest);
         assertNotNull(response);
